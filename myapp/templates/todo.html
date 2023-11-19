@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="shadow p-3 mb-5 bg-body rounded">
+	<h3>
+		<i class="bi bi-journal-plus"></i>
+		Add Todo
+	</h3>
+	<br/>
+
+    <form action="{{url_for('homepage.add')}}" method="post">
+        {{ form.title.label(class="form-label") }}
+		{{ form.title(class="form-control", autofocus=true) }}
+        <br/>
+        {{ form.submit(class="btn btn-success", title="todo me!") }}     
+    </form>
+    <br/>
+</div>
+
+<div class="shadow p-3 mb-5 bg-body rounded">
+    <h3>
+		<i class="bi bi-journal-text"></i>
+		My Todos
+	</h3>
+    <br/>
+
+    {% if todo_count == 0 %}
+    <i class="bi bi-emoji-frown" style="font-size: 2rem; color: red;"></i><br/>
+    you have no todos
+    {% else %}
+    
+    <table class="table table-borderless">
+      <tr>
+        <th colspan="3" class="bg-secondary">
+          Not Completed
+        </th>
+      </tr>
+    {% for todo in todo_list %}
+        <tr>
+            <th colspan="3">
+                <a id="{{todo.code}}"></a>
+                {{ todo.title }}
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <a class="btn btn-secondary" href="{{url_for('homepage.update',id=todo.code)}}" title="mark me as completed!">Not Complete</a>
+            </td>
+            <td class="text-start">
+                <button class="btn btn-info" data-bs-target="#TodoUpdateModel{{todo.code}}" data-bs-toggle="modal" title="update this todo!!">Update</button>
+            </td>
+            <td class="text-center">
+                <button class="btn btn-danger" data-bs-target="#TodoDelete{{todo.code}}" data-bs-toggle="modal" title="yes delete me!!!">Delete</button>
+            </td>
+        </tr>
+        <tr>
+          <td></td>
+        </tr>
+    {% endfor %}
+    {% if todo_list_count > 0 %}
+    <tr>
+      <td>
+        <br/>
+        <a class="btn btn-info" href="{{url_for('homepage.complete')}}" title="Complete EVERYTHING!!!!">All Complete</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td>
+        <i class="bi bi-emoji-smile" style="font-size: 2rem; color: green;"></i><br/>
+        nothing to complete
+      </td>
+    </tr>
+    {% endif %}
+
+    <tr>
+      <td colspan="3">
+        <hr>
+      </td>
+    </tr>
+    
+    <tr>
+      <th colspan="3" class="bg-success">
+        Complete items
+      </th>
+    </tr>
+    
+    {% for todo in todo_done %}
+        <tr>
+            <th colspan="3">
+                <a id="{{todo.code}}"></a>
+                {{ todo.title }}
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <a class="btn btn-success" href="{{url_for('homepage.update',id=todo.code)}}" title="uncomplete me :(">Complete</a>
+            </td>
+            <td class="text-start">
+                <button class="btn btn-info" data-bs-target="#TodoUpdateModel{{todo.code}}" data-bs-toggle="modal" title="update completed todo?">Update</button>
+            </td>
+            <td class="text-center">
+                <button class="btn btn-danger" data-bs-target="#TodoDelete{{todo.code}}" data-bs-toggle="modal" title="delete this completed todo!">Delete</button>
+            </td>
+        </tr>
+        <tr>
+          <td></td>
+        </tr>
+    {% endfor %}
+
+    {% if todo_done_count > 0 %}
+    <tr>
+      <td>
+        <br/>
+        <a class="btn btn-info" href="{{url_for('homepage.notcomplete')}}" title="uncomplete everything at once, why?">All Not Complete</a>
+      </td>
+      <td></td>
+      <td class="text-center">
+        <button class="btn btn-danger"  data-bs-target="#TodoDeleteALL" data-bs-toggle="modal" title="Clean up the completed, by making them deleted!">Delete All</button>
+        
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td>
+        <i class="bi bi-emoji-frown" style="font-size: 2rem; color: red;"></i><br/>
+        empty completed todos    
+      </td>
+    </tr>
+    {% endif %}
+    </table>
+    {% endif %}
+</div>
+
+{% for todo in todo_list %}
+  <!-- Edit Todo Form Modal -->
+<div class="modal fade" id="TodoUpdateModel{{todo.code}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="TodoUpdateModel{{todo.code}}Label" aria-hidden="true">
+	<div class="modal-dialog  modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title fs-5" id="TodoUpdateModel{{todo.code}}Label">Edit Todo</h1>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<form method="POST" action="{{url_for('homepage.edit', id=todo.code)}}" >
+			{{ form.hidden_tag() }}
+			<div class="modal-body">
+				{{ form.title.label(class="form-label") }}
+				{{ form.title(class="form-control", autofocus=true, value=todo.title) }}
+				<br/>
+
+			</div>
+			<div class="modal-footer">
+			{{ form.submit2(class="btn btn-success") }}
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</form>
+	  </div>
+	</div>
+  </div>
+
+    <!-- Delete Todo Form Modal -->
+  <div class="modal fade" id="TodoDelete{{todo.code}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="TodoDelete{{todo.code}}Label" aria-hidden="true">
+	<div class="modal-dialog  modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title fs-5" id="TodoDelete{{todo.code}}Label">Confirm Delete</h1>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+			<div class="modal-body">
+				are you sure?
+			<div class="modal-footer">
+				<form method="POST" action="{{url_for('homepage.delete', id=todo.code)}}" >
+                {{ form.hidden_tag() }}
+                {{ form.submit3(class="btn btn-danger", title="danger can not recover") }}
+			    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="please complete me first?">Close</button>
+                </form>
+		</div>
+	  </div>
+	</div>
+  </div>
+  </div>
+{% endfor %}
+
+{% for todo in todo_done %}
+  <!-- Edit Todo Form Modal -->
+<div class="modal fade" id="TodoUpdateModel{{todo.code}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="TodoUpdateModel{{todo.code}}Label" aria-hidden="true">
+	<div class="modal-dialog  modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title fs-5" id="TodoUpdateModel{{todo.code}}Label">Edit Todo</h1>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<form method="POST" action="{{url_for('homepage.edit', id=todo.code)}}" >
+			{{ form.hidden_tag() }}
+			<div class="modal-body">
+				{{ form.title.label(class="form-label") }}
+				{{ form.title(class="form-control", autofocus=true, value=todo.title) }}
+				<br/>
+
+			</div>
+			<div class="modal-footer">
+			{{ form.submit2(class="btn btn-success") }}
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
+		</form>
+	  </div>
+	</div>
+  </div>
+
+    <!-- Delete Todo Form Modal -->
+  <div class="modal fade" id="TodoDelete{{todo.code}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="TodoDelete{{todo.code}}Label" aria-hidden="true">
+	<div class="modal-dialog  modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title fs-5" id="TodoDelete{{todo.code}}Label">Confirm Delete</h1>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+			<div class="modal-body">
+				are you sure?
+			<div class="modal-footer">
+				<form method="POST" action="{{url_for('homepage.delete', id=todo.code)}}" >
+                {{ form.hidden_tag() }}
+                {{ form.submit3(class="btn btn-danger", title="i'm done, delete me") }}
+			    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="maybe next time?">Close</button>
+                </form>
+		</div>
+	  </div>
+	</div>
+  </div>
+  </div>
+{% endfor %}
+
+
+    <!-- Delete ALL Todo Form Modal -->
+    <div class="modal fade" id="TodoDeleteALL" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="TodoDeleteALLLabel" aria-hidden="true">
+      <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="TodoDeleteALLLabel">Confirm Delete</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+          <div class="modal-body">
+            are you sure?
+          <div class="modal-footer">
+            <form method="POST" action="{{url_for('homepage.deleteall')}}" >
+                    {{ form.hidden_tag() }}
+                    {{ form.submit3(class="btn btn-danger", title='delete them!') }}
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="no? ok :(">Close</button>
+                    </form>
+        </div>
+        </div>
+      </div>
+      </div>
+      </div>
+
+
+{% endblock %}
