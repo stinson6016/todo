@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, redirect, url_for
 from string import digits
 from random import choice
 
-import uuid
 import logging
 
 from . import db
@@ -34,8 +33,7 @@ def add():
     form = TodoForm()
     code=generate_code()
     logging.debug(f"New code - {code}")
-    new_item = Todo(id=uuid.uuid4(),
-                    title=form.title.data,
+    new_item = Todo(title=form.title.data,
                     code=code)
     db.session.add(new_item)
     db.session.commit()
@@ -86,7 +84,6 @@ def edit(id):
 
 @homepage.route('/delete/<int:id>', methods=['POST'])
 def delete(id):
-    # item_to_delete = Todo.query.get_or_404(id)
     item_to_delete = Todo.query.where(Todo.code==id).first()
     db.session.delete(item_to_delete)
     db.session.commit()
